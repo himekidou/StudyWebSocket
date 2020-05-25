@@ -1,5 +1,6 @@
 package com.example.homework.demo.WebSocketDTO;
 
+import java.io.Serializable;
 //import java.util.HashSet;
 //import java.util.Set;
 import java.util.UUID;
@@ -10,11 +11,18 @@ import java.util.UUID;
 
 //import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
-public class ChatRoom {
+@Setter
+public class ChatRoom implements Serializable{
+	
+	//redis에 저장되는 객체는 다 직렬화가 가능해야하기 때문에 참조해주고 UID선언
+	private static final long serialVersionUID = 6494678977089006639L;
+	
 	private String roomId; //채팅방 아이디
 	private String name;   //채팅방 이름
+	
 	
 	public static ChatRoom create(String name) {
 		ChatRoom chatRoom = new ChatRoom();
