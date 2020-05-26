@@ -42,6 +42,7 @@ public class ChatController {
 	
 	@MessageMapping("/chat/message") //websocket으로 들어오는 메시지 발행 처리 "/pub/chat/message"
 	public void message(ChatMessage message) {
+		System.out.println("pub/chat/message");
 		//클라에서 prefix를 붙여서 /pub/chat/message로 발행요청 -> Controller가 요청처리
 		if(ChatMessage.MessageType.ENTER.equals(message.getType())) {
 			chatRoomRepository.enterChatRoom(message.getRoomId());
@@ -52,6 +53,7 @@ public class ChatController {
 		//messagingTemplate.convertAndSend("/sub/chat/room/" + message.getRoomId(),message);
 		
 		// WebSocket에 발행된 메시지를 redis로 발행한다(publish)
+		System.out.println(message.getMessage());
 		redisPublisher.publish(chatRoomRepository.getTopic(message.getRoomId()), message);
 	}
 	

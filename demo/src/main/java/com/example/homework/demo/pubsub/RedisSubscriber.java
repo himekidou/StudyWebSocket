@@ -26,13 +26,14 @@ public class RedisSubscriber implements MessageListener{
 	public void onMessage(Message message, byte[] pattern) { // 두번째 파라미터 : 채널 메칭을 위한 다양한 패턴 처리 
 		try {
 			// redis에서 발행된 데이터를 받아서 직렬화
-			String publishMessage = (String)redisTemplate.getStringSerializer().deserialize(message.getBody());
+			String publishMessage = (String)
+		redisTemplate.getStringSerializer().deserialize(message.getBody());
 			
 			//ChatMessage객체로 매핑
 			ChatMessage roomMessage = objectMapper.readValue(publishMessage, ChatMessage.class);
 			
 			//WebSocket 구독자에게 채팅 메시지를 보냄
-			messagingTemplate.convertAndSend("/sub/chat/room" + roomMessage.getRoomId(), roomMessage);
+			messagingTemplate.convertAndSend("/sub/chat/room/" + roomMessage.getRoomId(), roomMessage);
 			
 		} catch (Exception e) {
 			log.error(e.getMessage());
