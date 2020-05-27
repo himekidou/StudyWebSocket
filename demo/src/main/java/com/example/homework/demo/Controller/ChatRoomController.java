@@ -2,6 +2,9 @@ package com.example.homework.demo.Controller;
 
 import java.util.List;
 
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +15,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.example.homework.demo.WebSocketDTO.ChatRoom;
+import com.example.homework.demo.WebSocketDTO.LoginInfo;
+import com.example.homework.demo.Service.ChatRoomRepository;
+import com.example.homework.demo.Service.JwtTokenProvider;
 
 import lombok.RequiredArgsConstructor;
 
@@ -20,7 +26,20 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/chat")
 public class ChatRoomController {
 	
-	private final com.example.homework.demo.Service.ChatRoomRepository chatRoomRepository;
+	private final ChatRoomRepository chatRoomRepository;
+	private final JwtTokenProvider jwtTokenProvider;
+	
+	// 로그인한 회원의 id 및 Jwt토큰 정보를 조회할 수 있도록 추가
+	@GetMapping("/user")
+	@ResponseBody
+	public LoginInfo getUserInfo() {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		String name = auth.getName();
+		return LoginInfo.builder()
+				.name(name)
+				.token(jwtTokenProvider.generateToken(name))
+				.build();
+	}
 	
 	//채팅 리스트 화면
 	

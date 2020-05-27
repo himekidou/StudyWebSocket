@@ -1,6 +1,7 @@
 package com.example.homework.demo.Config;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 //import org.springframework.web.socket.WebSocketHandler;
 //import org.springframework.web.socket.config.annotation.EnableWebSocket;
@@ -10,15 +11,19 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 //import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
-//import lombok.RequiredArgsConstructor;
+import com.example.homework.demo.handler.StompHandler;
 
-//@RequiredArgsConstructor // final이나 @NonNull인 필드 값만 파라미터로 받는 생성자를 만들어줌
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor // final이나 @NonNull인 필드 값만 파라미터로 받는 생성자를 만들어줌
 @Configuration //어노테이션 기반 환경 구성
 //@EnableWebSocket //웹소켓 활성화
 @EnableWebSocketMessageBroker
 public class WebSockConfig implements WebSocketMessageBrokerConfigurer{
 	//public class WebSockConfig implements WebSocketConfigurer{
 	//private final WebSocketHandler webSocketHandler;
+	
+	private final StompHandler stompHandler;
 	
 	@Override
 	public void configureMessageBroker(MessageBrokerRegistry config) {
@@ -37,6 +42,11 @@ public class WebSockConfig implements WebSocketMessageBrokerConfigurer{
 		registry.addEndpoint("/ws-stomp").setAllowedOrigins("*").withSockJS();
 		
 		
+	}
+	
+	@Override
+	public void configureClientInboundChannel(ChannelRegistration registration) {
+		registration.interceptors(stompHandler);
 	}
 
 }
