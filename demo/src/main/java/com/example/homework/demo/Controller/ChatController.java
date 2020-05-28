@@ -14,10 +14,10 @@ import org.springframework.stereotype.Controller;
 //import org.springframework.web.bind.annotation.RequestParam;
 //import org.springframework.web.bind.annotation.RestController;
 
-//import com.example.homework.demo.Service.ChatRoomRepository;
+import com.example.homework.demo.Service.ChatRoomRepository;
 import com.example.homework.demo.Service.JwtTokenProvider;
 import com.example.homework.demo.WebSocketDTO.ChatMessage;
-//import com.example.homework.demo.Service.ChatService;
+import com.example.homework.demo.Service.ChatService;
 //import com.example.homework.demo.WebSocketDTO.ChatRoom;
 //import com.example.homework.demo.pubsub.RedisPublisher;
 
@@ -41,10 +41,12 @@ public class ChatController {
 	
 	//직접 template처리하지말고 redis의 topic으로 발행해서 다른서버에 공유함
 	//private final RedisPublisher redisPublisher;
-	//private final ChatRoomRepository chatRoomRepository;
+	private final ChatRoomRepository chatRoomRepository;
 	private final JwtTokenProvider jwtTokenProvider;
-	private final RedisTemplate redisTemplate;
-	public final ChannelTopic channelTopic;
+	private final ChatService chatService;
+	
+	//private final RedisTemplate redisTemplate;
+	//public final ChannelTopic channelTopic;
 	
 	//private final SimpMessageSendingOperations messagingTemplate;
 	
@@ -56,18 +58,25 @@ public class ChatController {
 		message.setSender(nickname);
 		
 		//클라에서 prefix를 붙여서 /pub/chat/message로 발행요청 -> Controller가 요청처리
-		if(ChatMessage.MessageType.ENTER.equals(message.getType())) {
-			//chatRoomRepository.enterChatRoom(message.getRoomId());
-			message.setSender("[알림]");
-			message.setMessage(nickname + "님이 입장하셨습니다.");
-		}
+		//서버에서 메시지 보내게 처리했으므로 컨트롤러는 그외의 대화 메시지만 처리
+		/*
+		 * if(ChatMessage.MessageType.ENTER.equals(message.getType())) {
+		 * //chatRoomRepository.enterChatRoom(message.getRoomId());
+		 * message.setSender("[알림]"); message.setMessage(nickname + "님이 입장하셨습니다."); }
+		 */
+		
+		// 채팅방 인원수 세팅
+		message.setUserCount(chatRoomRepository.getUserCount(message.getRoomId()));
+		
+		//WebSocket에 발행된 메시지 redis로 발행(publish)
+		chatService.sendChatMessage(message);
 		
 		//해당 주소를 구독하고 있다가 메시지가 전달되면 화면에 출력.
 		//messagingTemplate.convertAndSend("/sub/chat/room/" + message.getRoomId(),message);
 		
 		// WebSocket에 발행된 메시지를 redis로 발행한다(publish)
 		//redisPublisher.publish(chatRoomRepository.getTopic(message.getRoomId()), message);
-		redisTemplate.convertAndSend(channelTopic.getTopic(), message);
+		//redisTemplate.convertAndSend(channelTopic.getTopic(), message);
 	}
 	
 	

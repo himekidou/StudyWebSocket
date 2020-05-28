@@ -23,6 +23,7 @@ public class ChatRoom implements Serializable{
 	
 	private String roomId; //채팅방 아이디
 	private String name;   //채팅방 이름
+	private long userCount; // 채팅방 인원수
 	
 	
 	public static ChatRoom create(String name) {
